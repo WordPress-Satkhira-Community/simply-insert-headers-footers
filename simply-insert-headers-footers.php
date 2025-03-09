@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Simply Insert Headers and Footers
-Plugin URI: https://wpsatkhira.com
+Plugin URI: https://delowerhossain.com/simply-insert-headers-and-footers
 Description: A simple plugin to insert custom codes into the header, body, and footer of your WordPress site.
 Version: 1.0
-Author: WordPress Satkhira Community
-Author URI: https://wpsatkhira.com
+Author: Delower Hossain
+Author URI: https://delowerhossain.com
 License: GPL2
 */
 
@@ -15,7 +15,8 @@ if (!defined('ABSPATH')) {
 }
 
 // Add menu item to the admin menu
-function sihaf_add_admin_menu() {
+function sihaf_add_admin_menu()
+{
     add_menu_page(
         'Simply Insert Headers and Footers',
         'Insert Headers & Footers',
@@ -28,17 +29,26 @@ function sihaf_add_admin_menu() {
 }
 add_action('admin_menu', 'sihaf_add_admin_menu');
 
-// Register settings
-function sihaf_register_settings() {
-    register_setting('sihaf_settings_group', 'sihaf_header_code');
-    register_setting('sihaf_settings_group', 'sihaf_body_code');
-    register_setting('sihaf_settings_group', 'sihaf_footer_code');
+// Register settings with sanitization
+function sihaf_register_settings()
+{
+    register_setting('sihaf_settings_group', 'sihaf_header_code', 'sihaf_sanitize_code');
+    register_setting('sihaf_settings_group', 'sihaf_body_code', 'sihaf_sanitize_code');
+    register_setting('sihaf_settings_group', 'sihaf_footer_code', 'sihaf_sanitize_code');
 }
 add_action('admin_init', 'sihaf_register_settings');
 
+// Sanitize code input
+function sihaf_sanitize_code($input)
+{
+    // Strip HTML tags and encode special characters to prevent XSS
+    return wp_kses_post($input);
+}
+
 // Settings page content
-function sihaf_settings_page() {
-    ?>
+function sihaf_settings_page()
+{
+?>
     <div class="wrap">
         <h1>Simply Insert Headers and Footers</h1>
         <form method="post" action="options.php">
@@ -69,23 +79,26 @@ function sihaf_settings_page() {
             <?php submit_button(); ?>
         </form>
     </div>
-    <?php
+<?php
 }
 
 // Add header code
-function sihaf_add_header_code() {
-    echo get_option('sihaf_header_code');
+function sihaf_add_header_code()
+{
+    echo wp_kses_post(get_option('sihaf_header_code'));
 }
 add_action('wp_head', 'sihaf_add_header_code');
 
 // Add body code
-function sihaf_add_body_code() {
-    echo get_option('sihaf_body_code');
+function sihaf_add_body_code()
+{
+    echo wp_kses_post(get_option('sihaf_body_code'));
 }
 add_action('wp_body_open', 'sihaf_add_body_code');
 
 // Add footer code
-function sihaf_add_footer_code() {
-    echo get_option('sihaf_footer_code');
+function sihaf_add_footer_code()
+{
+    echo wp_kses_post(get_option('sihaf_footer_code'));
 }
 add_action('wp_footer', 'sihaf_add_footer_code');
